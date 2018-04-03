@@ -117,11 +117,17 @@ a { text-decoration: none }
 <div id="htmlout"></div>
 <br />
 <!-- uncomment the next line here and in xlsxworker.js for encoding support -->
+<script src="js/jquery.min.js"></script>
 <script src="js/cpexcel.js"></script>
 <script src="js/shim.js"></script>
 <script src="js/jszip.js"></script>
 <script src="js/xlsx.js"></script>
 <script>
+//去掉首尾两端的空白符
+function trim(v){
+    if(v==undefined)v='';
+    return v.replace(/(^\s*)|(\s*$)/g, "");
+}
 /*jshint browser:true */
 /* eslint-env browser */
 /*global Uint8Array, console */
