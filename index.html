@@ -4,14 +4,18 @@
 <title>SheetJS Live Demo</title>
 <style>
 #drop{
-	border:2px dashed #bbb;
-	-moz-border-radius:5px;
-	-webkit-border-radius:5px;
-	border-radius:5px;
-	padding:25px;
-	text-align:center;
-	font:20pt bold,"Vollkorn";
-	color:#bbb;
+	border: 2px dashed #bbb;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    text-align: center;
+    font: 13pt bold,"Vollkorn";
+    color: #bbb;
+    width: 251px;
+    display: inline-block;
+    vertical-align: sub;
+	margin-left: 18px;
+	margin-top: 20px;
 }
 #b64data{
 	width:100%;
@@ -23,15 +27,18 @@
 ul{
 	padding: 0;
 	margin-left: 20px;
+	max-width: 90%;
 }
 li{
 	list-style-type: none;
     height: 35px;
     line-height: 35px;
+	display: flex;
 }
 li span{
 	display: inline-block;
 	width: 141px;
+	flex: 1;
     vertical-align: top;
     text-align: center;
 	border: 1px solid #ddd;
@@ -51,20 +58,16 @@ li span input{
 }
 li span select{
 	width: 100%;
-    padding: 10px 0;
 	border: none;
-	height: 37px;
+	height: 34px;
 }
 #xlf{
 	display: none;
 }
 .select_file{
 	padding: 11px;
-    background: #ddd;
-    color: #fff;
+	color: #a39f9f;
     cursor: pointer;
-    margin-top: 20px;
-	margin-left: 20px;
 	border-radius: 5px;
 }
 li{
@@ -110,16 +113,11 @@ a { text-decoration: none }
 </style>
 </head>
 <body>
-<div id="drop">把表拖到这里</div>
-<input type="file" name="xlfile" id="xlf" /> 
-<label for="xlf" class="select_file">选择文件</label>
+<div id="drop"><input type="file" name="xlfile" id="xlf" /><label for="xlf" class="select_file">把表拖到这里,或者点击这里</label></div>
 <div id="htmlout"></div>
 <br />
 <!-- uncomment the next line here and in xlsxworker.js for encoding support -->
 <script src="js/jquery.min.js"></script>
-<script src="js/cpexcel.js"></script>
-<script src="js/shim.js"></script>
-<script src="js/jszip.js"></script>
 <script src="js/xlsx.js"></script>
 <script>
 //去掉首尾两端的空白符
@@ -134,25 +132,11 @@ function trim(v){
 /* exported b64it, setfmt */
 /* eslint no-use-before-define:0 */
 var X = XLSX;
-var XW = {
-	/* worker message */
-	msg: 'xlsx',
-	/* worker scripts */
-	worker: '__MAIN_HOST__/Public/assets/manage/js/plugins/excel/xlsxworker.js'
-};
-
 var global_wb;
 
 var process_wb = (function() {
 	var OUT = document.getElementById('out');
 	var HTMLOUT = document.getElementById('htmlout');
-
-	// var get_format = (function() {
-	// 	var radios = document.getElementsByName( "format" );
-	// 	return function() {
-	// 		for(var i = 0; i < radios.length; ++i) if(radios[i].checked || radios.length === 1) return radios[i].value;
-	// 	};
-	// })();
 
 	var to_json = function to_json(workbook) {
 		var result = {};
@@ -165,21 +149,10 @@ var process_wb = (function() {
 	return function (wb) {
 		global_wb = wb;
 		var output = "";
-		// switch(get_format()) {
-		// 	case "form": output = to_fmla(wb); break;
-		// 	case "html": output = to_html(wb); break;
-		// 	case "json": output = to_json(wb); break;
-		// 	default: output = to_csv(wb);
-		// }
 		output = to_json(wb);
 		drawExcel(output)
-		// if(OUT.innerText === undefined) OUT.textContent = output;
-		// else OUT.innerText = output;
-		// if(typeof console !== 'undefined') console.log("output", new Date());
 	};
 })();
-
-var setfmt = window.setfmt = function setfmt() {if(global_wb) process_wb(global_wb); };
 
 var do_file = (function() {
 	var rABS = typeof FileReader !== "undefined" && (FileReader.prototype||{}).readAsBinaryString;
@@ -209,7 +182,6 @@ var do_file = (function() {
 		if(f!=undefined){
 			var reader = new FileReader();
 			reader.onload = function(e) {
-				if(typeof console !== 'undefined') console.log("onload", new Date(), rABS, use_worker);
 				var data = e.target.result;
 				if(!rABS) data = new Uint8Array(data);
 				if(use_worker) xw(data, process_wb);
@@ -220,43 +192,25 @@ var do_file = (function() {
 		}
 	};
 })();
-
-(function() {
+	//拖动
 	var drop = document.getElementById('drop');
-	if(!drop.addEventListener) return;
-
+	drop.addEventListener('dragenter', handleDragover, false);
+	drop.addEventListener('dragover', handleDragover, false);
+	drop.addEventListener('drop', handleDrop, false);
 	function handleDrop(e) {
 		e.stopPropagation();
 		e.preventDefault();
 		do_file(e.dataTransfer.files);
 	}
-
 	function handleDragover(e) {
 		e.stopPropagation();
 		e.preventDefault();
 		e.dataTransfer.dropEffect = 'copy';
 	}
-
-	drop.addEventListener('dragenter', handleDragover, false);
-	drop.addEventListener('dragover', handleDragover, false);
-	drop.addEventListener('drop', handleDrop, false);
-})();
-
-(function() {
-	var xlf = document.getElementById('xlf');
-	if(!xlf.addEventListener) return;
-	function handleFile(e) { do_file(e.target.files); }
-	xlf.addEventListener('change', handleFile, false);
-})();
-	var _gaq = _gaq || [];
-	_gaq.push(['_setAccount', 'UA-36810333-1']);
-	_gaq.push(['_trackPageview']);
-
-	(function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	})();
+	//选择文件
+	$("#xlf").change(function(e){
+		do_file(e.target.files);
+	})
 </script>
 <script>
 	drawExcel()

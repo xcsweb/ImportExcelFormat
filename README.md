@@ -49,8 +49,64 @@
 			}
 		})
 	}
+	//如果存在异步情况可以使用
+	$.when($.ajax({
+			url:api_url+"/shop/find",
+			success:function(res){
+				shopData=res;
+			}
+		})).done(function(){
+			new excelBuild({
+				excelData:str,
+				type:{
+					0:{
+						check:['require'],
+						format:function (obj,v){
+							var $sel=$("<span><select><select></span>");
+							for(var i=0;i<shopData.data.length;i++){
+								$sel.find("select").append("<option value="+shopData.data[i].name+">"+shopData.data[i].name+"</option>")
+							}
+							obj.append($sel);
+							for(var a in shopData.data){
+								if(shopData.data[a].name==v){
+									obj.find("select").val(v)
+								}
+							}
+						}
+					},
+					1:{
+						check:['require'],
+					},
+					2:{
+						check:['require'],
+					},
+					3:{
+						check:['require','isPhone'],
+					},
+					4:{
+						check:[],
+					},
+					5:{
+						check:[],
+					}
+				},
+				bgColor:"#f4afafd4",
+				validateRules:{
+					"isTel":function(v){
+						var re=/(\d{3,4}\-)?\d{7,8}/;
+						if(re.test(v)){
+							return true
+						}else{
+							return false
+						}
+					}
+				}
+			})
+		}).fail(function(){
+			
+		})
 ```
-# 该组件借用了sheetjs官方的代码,该插件支持校验，自定义定制单元格，现在免费开源
+## 该组件借用了sheetjs官方的代码,该插件支持校验，自定义定制单元格，现在免费开源
 
-# 线上地址有默认参数，现在传了也没用，自己下载下来，自己配置后方可使用
-# 预览地址[https://xcsweb.github.io/ImportExcelFormat/]()，有部分样式有点问题，自己调整下
+## 线上地址有默认参数，现在传了也没用，自己下载下来，自己配置后方可使用
+## 预览地址[https://xcsweb.github.io/ImportExcelFormat/]()，有部分样式有点问题，自己调整下
